@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Day*.fs" />
     <Compile Include="InputLoader.fs" />
     <Compile Include="Program.fsx" />
   </ItemGroup>

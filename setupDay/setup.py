@@ -11,7 +11,7 @@ def main(args):
         print("Program must take exactly one argument, the day to setup.")
         return 1
     
-    day = int(args[1])
+    day = str(int(args[1])).zfill(2)
     
     if (advent_dir / f"inputs/day{day}.txt").is_file() or (advent_dir / f"Day{day}.fs").is_file():
         print("some important files already exist.")
