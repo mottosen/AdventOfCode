@@ -8,7 +8,7 @@ type Day1() =
         // get two nums with regex, return as tuple
         let helper (line : string) : int*int =
             let m = Regex.Match(line, "^(\d+)\s+(\d+)$")
-            (m.Groups[1].Value |> Int32.Parse, m.Groups[2].Value |> Int32.Parse)
+            (m.Groups.[1].Value |> Int32.Parse, m.Groups.[2].Value |> Int32.Parse)
 
         // split every line, unzip into column arrays
         Array.unzip << Array.map helper

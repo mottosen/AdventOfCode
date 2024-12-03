@@ -18,18 +18,17 @@ type Day2() =
         | e1::e2::rem -> Day2.validChange (if incr then e2-e1 else e1-e2) && Day2.safeNoTolerance incr (e2::rem)
         | _ -> true
 
-    static member Star1 (input : string[]) : string =
+    static member Star1 : string[] -> string =
         // get sign of operation, check rest with no tolerance, according to sign
         let safeLineInit : int list -> bool = function
             | e1::e2::rem -> Day2.validChange (abs (e1-e2)) && Day2.safeNoTolerance (e2-e1 > 0) (e2::rem)
             | _ -> failwith "should not happen"
+        
+        Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
+        >> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
+        >> string
 
-        input
-        |> Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
-        |> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
-        |> string
-
-    static member Star2 (input : string[]) : string =
+    static member Star2 : string[] -> string =
         // signed operation, continues with or without tolerance
         let rec safeLineRem incr : int list -> bool = function
             | e1::e2::e3::rem ->
@@ -81,7 +80,6 @@ type Day2() =
                 | (true, false, true) -> Day2.safeNoTolerance (d1 > 0) (e1::e3::rem) || Day2.safeNoTolerance (d1 > 0) (e1::e2::rem)
             | _ -> failwith "should not happen"
 
-        input
-        |> Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
-        |> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
-        |> string
+        Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
+        >> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
+        >> string
