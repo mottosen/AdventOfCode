@@ -13,15 +13,15 @@ type Day3() =
     
     // extract multiplications with regex, sum across lines in input
     static member Star1 : string[] -> string =
-        string << Array.fold (+) 0 << Array.Parallel.map (fun l ->
-            (Day3.reg.Matches l) |> Seq.fold Day3.mulAcc 0)
+        string << Array.fold (+) 0 << Array.Parallel.map
+            (Seq.fold Day3.mulAcc 0 << Day3.reg.Matches)
 
     // extend Star1 with 'enable switch', state carries over between lines in input
     static member Star2 : string[] -> string =
         let matchHandler (res : int, enabled : bool) : Match -> int*bool = function
-            | m when m.Groups.[4].Success -> (res,true)                      // do
-            | m when m.Groups.[5].Success -> (res, false)                    // don't
-            | m -> ((if enabled then (Day3.mulAcc res m) else res), enabled) // mul
+            | m when m.Groups.[4].Success -> (res, true)                    // do
+            | m when m.Groups.[5].Success -> (res, false)                   // don't
+            | m -> ((if enabled then Day3.mulAcc res m else res), enabled)  // mul
 
         string << fst << Array.fold (fun s ->
             Seq.fold matchHandler s << Day3.reg.Matches) (0, true)
