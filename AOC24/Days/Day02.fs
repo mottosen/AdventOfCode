@@ -1,4 +1,4 @@
-namespace AdventOfCode
+namespace AdventOfCode24
 
 open System
 open System.Text.RegularExpressions
@@ -24,9 +24,9 @@ type Day2() =
             | e1::e2::rem -> Day2.validChange (abs (e1-e2)) && Day2.safeNoTolerance (e2-e1 > 0) (e2::rem)
             | _ -> failwith "should not happen"
         
-        Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
-        >> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
-        >> string
+        string << Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
+        << Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
+
 
     static member Star2 : string[] -> string =
         // signed operation, continues with or without tolerance
@@ -80,6 +80,5 @@ type Day2() =
                 | (true, false, true) -> Day2.safeNoTolerance (d1 > 0) (e1::e3::rem) || Day2.safeNoTolerance (d1 > 0) (e1::e2::rem)
             | _ -> failwith "should not happen"
 
-        Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)
-        >> Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
-        >> string
+        string << Array.fold (fun acc safe -> if safe then acc + 1 else acc) 0
+        << Array.Parallel.map (fun line -> Day2.line2Nums line |> safeLineInit)

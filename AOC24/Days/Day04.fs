@@ -1,4 +1,4 @@
-namespace AdventOfCode
+namespace AdventOfCode24
 
 type Day4() =
     static member private bool2int (b : bool) : int = if b then 1 else 0

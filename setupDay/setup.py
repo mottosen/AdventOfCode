@@ -26,7 +26,7 @@ def main(args):
     with open(advent_dir / f"inputs_test/Day{day}_2.txt", "w") as f:
         f.write("")
 
-    shutil.copyfile(curr_dir / "NewDay.fs", advent_dir / f"Day{day}.fs")
+    shutil.copyfile(curr_dir / "NewDay.fs", advent_dir / f"Days/Day{day}.fs")
     
     return 0
 

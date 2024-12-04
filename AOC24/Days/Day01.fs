@@ -1,4 +1,4 @@
-namespace AdventOfCode
+namespace AdventOfCode24
 
 open System
 open System.Text.RegularExpressions
