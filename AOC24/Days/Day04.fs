@@ -19,14 +19,14 @@ type Day4() =
             acc +
             if map.[r, c] = 'X' then // "XMAS"
                   try (map.[r+1, c-1] = 'M' && map.[r+2, c-2] = 'A' && map.[r+3, c-3] = 'S') |> Day4.bool2int with _ -> 0
-                + try (map.[r+1, c]   = 'M' && map.[r+2, c]   = 'A' && map.[r+3, c]   = 'S') |> Day4.bool2int with _ -> 0
+                + try (map.[r+1, c  ] = 'M' && map.[r+2, c  ] = 'A' && map.[r+3, c  ] = 'S') |> Day4.bool2int with _ -> 0
                 + try (map.[r+1, c+1] = 'M' && map.[r+2, c+2] = 'A' && map.[r+3, c+3] = 'S') |> Day4.bool2int with _ -> 0
-                + try (map.[r, c+1]   = 'M' && map.[r, c+2]   = 'A' && map.[r, c+3]   = 'S') |> Day4.bool2int with _ -> 0
+                + try (map.[r,   c+1] = 'M' && map.[r,   c+2] = 'A' && map.[r,   c+3] = 'S') |> Day4.bool2int with _ -> 0
             else // "SAMX"
                   try (map.[r+1, c-1] = 'A' && map.[r+2, c-2] = 'M' && map.[r+3, c-3] = 'X') |> Day4.bool2int with _ -> 0
-                + try (map.[r+1, c]   = 'A' && map.[r+2, c]   = 'M' && map.[r+3, c]   = 'X') |> Day4.bool2int with _ -> 0
+                + try (map.[r+1, c  ] = 'A' && map.[r+2, c  ] = 'M' && map.[r+3, c  ] = 'X') |> Day4.bool2int with _ -> 0
                 + try (map.[r+1, c+1] = 'A' && map.[r+2, c+2] = 'M' && map.[r+3, c+3] = 'X') |> Day4.bool2int with _ -> 0
-                + try (map.[r, c+1]   = 'A' && map.[r, c+2]   = 'M' && map.[r, c+3]   = 'X') |> Day4.bool2int with _ -> 0
+                + try (map.[r,   c+1] = 'A' && map.[r,   c+2] = 'M' && map.[r,   c+3] = 'X') |> Day4.bool2int with _ -> 0
 
         string << Day4.foldMap checkFind ['X';'S'] << array2D
 
