@@ -2,14 +2,14 @@ namespace AdventOfCode24
 
 open System
 
-type Pos = int*int
-type Dir = Up | Right | Down | Left
-type charMap = char[,]
+type D6Pos = int*int
+type D6Dir = Up | Right | Down | Left
+type D6CharMap = char[,]
 
 type Day6() =
     // finds the starting point on map
-    static member private findStart (map : charMap) : Pos =
-        let rec helper ((r,c) : Pos) ((rL, cL) : Pos) : Pos =
+    static member private findStart (map : D6CharMap) : D6Pos =
+        let rec helper ((r,c) : D6Pos) ((rL, cL) : D6Pos) : D6Pos =
             if r < 0 || c < 0 || r >= rL || c >= cL then failwith "no start position"
             else
                 if (List.contains map.[r, c] ['^';'>';'v';'<']) then (r,c)
@@ -18,27 +18,27 @@ type Day6() =
 
         helper (0,0) (Array2D.length1 map, Array2D.length2 map)
 
-    static member private char2Dir : char -> Dir = function
+    static member private char2Dir : char -> D6Dir = function
         | '^' -> Up | '>' -> Right | 'v' -> Down | '<' -> Left
 
-    static member private dir2Char : Dir -> char = function
+    static member private dir2Char : D6Dir -> char = function
         | Up -> '^' | Right -> '>' | Down -> 'v' | Left -> '<'
 
-    static member private nextDir : Dir -> Dir = function
+    static member private nextDir : D6Dir -> D6Dir = function
         | Up -> Right | Right -> Down | Down -> Left | Left -> Up
 
-    static member private nextPos ((r,c) : Pos) : Dir -> Pos = function
+    static member private nextPos ((r,c) : D6Pos) : D6Dir -> D6Pos = function
         | Up -> (r-1, c) | Right -> (r, c+1) | Down -> (r+1, c) | Left -> (r, c-1)
 
     // updates map according to guard walking
-    static member private drawMap ((r,c) : Pos) (map : charMap) (dir : Dir) : unit =
+    static member private drawMap ((r,c) : D6Pos) (map : D6CharMap) (dir : D6Dir) : unit =
         let m = map.[r, c]
         if m = (Day6.dir2Char dir) then failwith "loop"
         elif not (m = '.') then ()
         else map.[r, c] <- Day6.dir2Char dir
 
     // simulates walking the guard, until he exits map or goes in a loop
-    static member private walkGuard (initPos : Pos) ((rL,cL) : Pos) (initDir : Dir) (map : charMap) : int =
+    static member private walkGuard (initPos : D6Pos) ((rL,cL) : D6Pos) (initDir : D6Dir) (map : D6CharMap) : int =
         let mutable res = 0
         let mutable walk = true
         let mutable pos = initPos

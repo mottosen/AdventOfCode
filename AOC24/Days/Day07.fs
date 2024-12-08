@@ -17,7 +17,7 @@ type Day7() =
         string << Array.fold (fun acc line -> Day7.handleLine helper acc line) 0.
 
     static member Star2 : string[] -> string =
-        // extended Star 1 logic with concat operator
+        // extended Star1 logic with concat operator
         let rec helper (res : float) (acc : float) : string list -> float = function
             | n::ns -> (helper res (acc + (n |> float)) ns) |> max <| (helper res ((max acc 1.) * (n |> float)) ns) |> max <| (helper res (((string acc) + n) |> float) ns)
             | [] -> if res = acc then res else 0.

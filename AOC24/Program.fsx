@@ -74,6 +74,15 @@ module Program =
                 //Day7.Star2 (InputLoader.GetInputFromFile "inputs_real/day07.txt")
                 |> printfn "Day 7, Star 2: %s"
 
+            elif day = 8 then
+                //Day8.Star1 (InputLoader.GetInputFromFile "inputs_test/day08_1.txt")
+                Day8.Star1 (InputLoader.GetInputFromFile "inputs_real/day08.txt")
+                |> printfn "Day 8, Star 1: %s"
+        
+                //Day8.Star2 (InputLoader.GetInputFromFile "inputs_test/day08_2.txt")
+                Day8.Star2 (InputLoader.GetInputFromFile "inputs_real/day08.txt")
+                |> printfn "Day 8, Star 2: %s"
+
             else
                 printfn "Day not solved yet."
         
