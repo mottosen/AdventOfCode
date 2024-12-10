@@ -100,6 +100,28 @@ module Program =
                 |> printfn "Day 8, Star 2: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
 
+            elif day = 9 then
+                Day9.Star1 (InputLoader.GetInputFromFile "inputs_test/day09_1.txt")
+                //Day9.Star1 (InputLoader.GetInputFromFile "inputs_real/day09.txt")
+                |> printfn "Day 9, Star 1: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds); timer.Restart()
+        
+                Day9.Star2 (InputLoader.GetInputFromFile "inputs_test/day09_2.txt")
+                //Day9.Star2 (InputLoader.GetInputFromFile "inputs_real/day09.txt")
+                |> printfn "Day 9, Star 2: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+
+            elif day = 10 then
+                Day10.Star1 (InputLoader.GetInputFromFile "inputs_test/day10_1.txt")
+                //Day10.Star1 (InputLoader.GetInputFromFile "inputs_real/day10.txt")
+                |> printfn "Day 10, Star 1: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds); timer.Restart()
+        
+                Day10.Star2 (InputLoader.GetInputFromFile "inputs_test/day10_2.txt")
+                //Day10.Star2 (InputLoader.GetInputFromFile "inputs_real/day10.txt")
+                |> printfn "Day 10, Star 2: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+
             else
                 printfn "Day not solved yet."
         

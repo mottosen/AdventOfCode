@@ -40,7 +40,7 @@ type Day8() =
         (string << List.length << List.distinct
         << Map.fold (fun acc _ positions -> Day8.checkAntinodes (input.Length, input.[0].Length) 1 acc positions) []
         << Array.fold Day8.mapMerge Map.empty<char,D8Pos list>
-        << Array.mapi (fun r line ->
+        << Array.Parallel.mapi (fun r line ->
             Regex.Matches(line, "[a-zA-Z0-9]") |> Seq.fold (fun map m ->
                 Day8.mapAdd (m.Value.[0], [(r, m.Index)]) map) Map.empty<char,D8Pos list>)) input
 
@@ -49,6 +49,6 @@ type Day8() =
         (string << List.length << List.distinct
         << Map.fold (fun acc _ positions -> positions @ Day8.checkAntinodes (input.Length, input.[0].Length) -1 acc positions) []
         << Array.fold Day8.mapMerge Map.empty<char,D8Pos list>
-        << Array.mapi (fun r line ->
+        << Array.Parallel.mapi (fun r line ->
             Regex.Matches(line, "[a-zA-Z0-9]") |> Seq.fold (fun map m ->
                 Day8.mapAdd (m.Value.[0], [(r, m.Index)]) map) Map.empty<char,D8Pos list>)) input
