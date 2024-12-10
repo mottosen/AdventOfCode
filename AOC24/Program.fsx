@@ -31,7 +31,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day02.txt"
 
                 timer.Start()
-                input |> Day2.Star1 |> printfn "Day 2, Star 2: %s"
+                input |> Day2.Star1 |> printfn "Day 2, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -44,7 +44,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day03.txt"
 
                 timer.Start()
-                input |> Day3.Star1 |> printfn "Day 3, Star 3: %s"
+                input |> Day3.Star1 |> printfn "Day 3, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -57,7 +57,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day04.txt"
 
                 timer.Start()
-                input |> Day4.Star1 |> printfn "Day 4, Star 4: %s"
+                input |> Day4.Star1 |> printfn "Day 4, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -70,7 +70,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day05.txt"
 
                 timer.Start()
-                input |> Day5.Star1 |> printfn "Day 5, Star 5: %s"
+                input |> Day5.Star1 |> printfn "Day 5, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -83,7 +83,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day06.txt"
 
                 timer.Start()
-                input |> Day6.Star1 |> printfn "Day 6, Star 6: %s"
+                input |> Day6.Star1 |> printfn "Day 6, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -96,7 +96,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day07.txt"
 
                 timer.Start()
-                input |> Day7.Star1 |> printfn "Day 7, Star 7: %s"
+                input |> Day7.Star1 |> printfn "Day 7, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -109,7 +109,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day08.txt"
 
                 timer.Start()
-                input |> Day8.Star1 |> printfn "Day 8, Star 8: %s"
+                input |> Day8.Star1 |> printfn "Day 8, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -122,7 +122,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day09.txt"
 
                 timer.Start()
-                input |> Day9.Star1 |> printfn "Day 9, Star 9: %s"
+                input |> Day9.Star1 |> printfn "Day 9, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
@@ -135,7 +135,7 @@ module Program =
                 //let input = InputLoader.GetInputFromFile "inputs_real/day10.txt"
 
                 timer.Start()
-                input |> Day10.Star1 |> printfn "Day 10, Star 10: %s"
+                input |> Day10.Star1 |> printfn "Day 10, Star 1: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
                 
                 timer.Restart()
