@@ -65,9 +65,6 @@ type Day12() =
                 | [true; false; false; true] -> 2 - (iPos s (r-1,c+1))
                 | [false; true; true; false] -> 2 - (iPos s (r+1,c-1))
                 | [false; true; false; true] -> 2 - (iPos s (r+1,c+1))
-                // connecting plot
-                | [true; true; false; false]
-                | [false; false; true; true] -> 0
                 // end of - shape
                 | [true; false; false; false] -> 2
                 | [false; true; false; false] -> 2
@@ -75,7 +72,7 @@ type Day12() =
                 | [false; false; false; true] -> 2
                 // 0 surrounding plots
                 | [false; false; false; false] -> 4
-                // Misc
+                // connecting plot or misc
                 | _ -> 0
 
             List.fold (fun tmp (rP, cP) -> tmp + (sides (fst map.[rP,cP]) (rP,cP) map)) 0
