@@ -156,9 +156,9 @@ module Program =
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
 
             elif day = 12 then
-                //let input = InputLoader.GetInputFromFile "inputs_test/day12_1.txt"
+                let input = InputLoader.GetInputFromFile "inputs_test/day12_1.txt"
                 //let input = InputLoader.GetInputFromFile "inputs_test/day12_2.txt"
-                let input = InputLoader.GetInputFromFile "inputs_real/day12.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_real/day12.txt"
 
                 timer.Start()
                 input |> Day12.Star1 |> printfn "Day 12, Star 1: %s"
