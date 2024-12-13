@@ -6,9 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="inputs_real\*">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
     <Compile Include="Days\*" />
     <Compile Include="InputLoader.fs" />
     <Compile Include="Program.fsx" />
@@ -18,6 +15,13 @@
 	<Content Include="inputs_test\*">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+    <Content Include="inputs_real\*">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNumerics" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
