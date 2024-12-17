@@ -209,7 +209,7 @@ module Program =
 
             elif day = 16 then
                 let input = InputLoader.GetInputFromFile "inputs_test/day16_1.txt"
-                let input = InputLoader.GetInputFromFile "inputs_test/day16_2.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_test/day16_2.txt"
                 //let input = InputLoader.GetInputFromFile "inputs_real/day16.txt"
 
                 timer.Start()
