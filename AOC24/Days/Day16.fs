@@ -5,7 +5,9 @@ open System
 
 type D16Pos = int*int
 type D16Dir = Up | Right | Down | Left
-type D16Map = (char*(D16Dir option)*int)[,]
+type D16Map = (char*(D16Pos list)*int)[,]
+
+type D16Node = {Weight:int; Dir:D16Dir option; Trail : D16Pos list; Trailed : bool}
 
 type Day16() =
     static let mutable _sPos = (0,0)
@@ -19,123 +21,102 @@ type Day16() =
         with get() = _ePos
         and set(p) = _ePos <- p
 
-    static member nextPos ((r,c) : D16Pos) : D16Dir -> D16Pos = function
-        | Up -> (r-1,c) | Right -> (r,c+1) | Down -> (r+1,c) | Left -> (r,c-1)
+    static member private connections ((r,c) : D16Pos) : D16Dir -> D16Pos[] = function
+        | Up ->    [|(r,c-1); (r-1,c); (r,c+1)|]
+        | Right -> [|(r-1,c); (r,c+1); (r+1,c)|]
+        | Down ->  [|(r,c+1); (r+1,c); (r,c-1)|]
+        | Left ->  [|(r+1,c); (r,c-1); (r-1,c)|]
 
-    static member addMap ((k,v) : int*int) (map : Map<int,int>) : Map<int,int> =
-        if map.ContainsKey k then map.Add (k, map.[k]+v)
-        else map.Add (k, v)
+    static member private changeDir (c : int) : D16Dir -> D16Dir = function
+        | Up -> if c = 0 then Left elif c = 1 then Up elif c = 2 then Right else failwith "should not happen"
+        | Right -> if c = 0 then Up elif c = 1 then Right elif c = 2 then Down else failwith "should not happen"
+        | Down -> if c = 0 then Right elif c = 1 then Down elif c = 2 then Left else failwith "should not happen"
+        | Left -> if c = 0 then Down elif c = 1 then Left elif c = 2 then Up else failwith "should not happen"
 
-    static member neighborsToHandle ((r,c) : D16Pos) : D16Dir -> (D16Pos*D16Dir)[] = function
-        | Up ->     [|((r,c-1), Left); ((r-1,c), Up); ((r,c+1), Right)|]
-        | Right ->  [|((r-1,c), Up); ((r,c+1), Right); ((r+1,c), Down)|]
-        | Down ->   [|((r,c+1), Right); ((r+1,c), Down); ((r,c-1), Left)|]
-        | Left ->   [|((r+1,c), Down); ((r,c-1), Left); ((r-1,c), Up)|]
+    static member path (map : char[,]) (graph : Map<D16Pos,D16Node>) : int*(D16Pos list) =
+        let mutable minWeight = Int32.MaxValue
+        graph |> Map.iter (fun k v -> let w = v.Weight in if w < minWeight && not v.Trailed then minWeight <- w)
+
+        let (r,c) = graph |> Map.findKey (fun k v -> v.Weight = minWeight && not v.Trailed)
+
+        if (r,c) = Day16.EPos then
+            let tmp = graph.[r,c]
+            (tmp.Weight, (r,c)::tmp.Trail)
+        else
+            let node = graph.[r,c]
+            let node = {Weight = node.Weight; Dir = node.Dir; Trail = node.Trail; Trailed = true}
+            let graph = graph.Add ((r,c), node)
+
+            let nodeDir = node.Dir.Value
+            let nbs = Day16.connections (r,c) nodeDir |> Array.map (fun p -> Some p)
+            if nbs |> Array.forall (fun o -> o.IsNone) then
+                let o = graph.[r,c]
+                Day16.path map (graph.Add ((r,c), {Weight = o.Weight; Dir = o.Dir; Trail = o.Trail; Trailed = true}))
+            else
+                let foo = nbs |> Array.mapi (fun dD po ->
+                    if po.IsSome then
+                        let (i,j) = po.Value
+                        if map.[i,j] = '#' then
+                            ((r,c), {Weight = node.Weight+1000; Dir = node.Dir; Trail = node.Trail; Trailed = node.Trailed}) |> Some
+                        else
+                            let n = graph.[i,j]
+
+                            let nDir = Day16.changeDir dD nodeDir
+
+                            let newWeight =
+                                if dD = 1 then node.Weight+1
+                                else node.Weight+1001
+                                
+                            if newWeight <= n.Weight then
+                                ((i,j), {Weight = newWeight; Dir = Some nDir; Trail = ((r,c)::node.Trail @ n.Trail) |> List.distinct; Trailed = false}) |> Some
+                            else None
+                    else None)
+
+                foo
+                |> Array.filter (fun o -> o.IsSome)
+                |> Array.fold (fun (g : Map<D16Pos,D16Node>) f ->
+                    let (k,v) = f.Value
+                    g.Add (k,v)) graph
+                |> Day16.path map
 
     static member Star1 (input : string[]) : string =
-        //let map = input |> array2D |> Array2D.mapi (fun r c s ->
-        //    if s = 'S' then Day16.SPos <- (r,c); (s, Some Right, 0) else (s, None, Int32.MaxValue))
+        let parsed = input |> array2D
+        let mutable graph = Map.empty<D16Pos,D16Node>
 
-        //let mutable queue = [Day16.SPos]
-        //let mutable scores = Map.empty<int,int>
+        parsed |> Array2D.iteri (fun r c s ->
+            if s = 'S' then
+                Day16.SPos <- (r,c)
+                graph <- graph.Add ((r,c), {Weight = 0; Dir = Some Right; Trail = []; Trailed = false})
+            elif s = 'E' then
+                Day16.EPos <- (r,c)
+                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false})
+            elif s = '.' then
+                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false}))
 
-        //while not queue.IsEmpty do
-        //    let (r,c) = queue.Head
-        //    queue <- queue.Tail
-        //    let (s,d,sc) = map.[r,c]
-        //    if s = 'E' then
-        //        scores <- Day16.addMap (sc, 1) scores
-        //    else
-        //        Day16.neighborsToHandle (r,c) sc d.Value
-        //        |> Array.iter (fun ((rN,cN), dN, scN) ->
-        //            let (sO, dO, scO) = map.[rN,cN]
-        //            if sO = '#' then ()
-        //            else
-        //                if dO.IsSome && scN >= scO then ()
-        //                else queue <- (rN,cN)::queue
-        //                     map.[rN,cN] <- (sO, Some dN, scN))
-
-        //Map.minKeyValue scores |> fst |> string
-        ""
+        Day16.path parsed graph
+        |> fst |> string
 
     static member Star2 (input : string[]) : string = // 432 too low
-        let map = input |> array2D |> Array2D.mapi (fun r c s ->
-            if s = 'S' then Day16.SPos <- (r,c); (s, Some Right, 0)
-            else
-                if s = 'E' then Day16.EPos <- (r,c)
-                (s, None, Int32.MaxValue))
+        let parsed = input |> array2D
+        let mutable graph = Map.empty<D16Pos,D16Node>
 
-        let mutable queue = [Day16.SPos]
-        let mutable scores = Map.empty<int,int>
+        parsed |> Array2D.iteri (fun r c s ->
+            if s = 'S' then
+                Day16.SPos <- (r,c)
+                graph <- graph.Add ((r,c), {Weight = 0; Dir = Some Right; Trail = []; Trailed = false})
+            elif s = 'E' then
+                Day16.EPos <- (r,c)
+                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false})
+            elif s = '.' then
+                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false}))
 
-        while not queue.IsEmpty do
-            let (r,c) = queue.Head
-            queue <- queue.Tail
-            let (s,d,sc) = map.[r,c]
-            if s = 'E' then
-                scores <- Day16.addMap (sc, 1) scores
-            else
-                let nbs = Day16.neighborsToHandle (r,c) d.Value
+        let res = Day16.path parsed graph
 
-                let (rF,cF) = fst nbs.[1]
-                match map.[rF,cF] with ('#', _, _) -> map.[r,c] <- (s, d, sc+1000) | _ -> ()
+        for (i,j) in (snd res) do
+            parsed.[i,j] <- 'X'
+        parsed |> Day16.printMap
 
-                nbs|> Array.iter (fun ((rN,cN), dN) ->
-                    let (sO, dO, scO) = map.[rN,cN]
-                    if sO = '#' then ()
-                    else
-                        let scN =
-                            if dN <> d.Value then sc+1001
-                            else sc+1
-
-                        if dO.IsSome && scN >= scO then ()
-                        else queue <- (rN,cN)::queue
-                             map.[rN,cN] <- (sO, Some dN, scN))
-
-        let rec helper ((r,c) : D16Pos) (map : D16Map) : unit =
-            let (s,d,sc) = map.[r,c]
-            if s = 'S' then map.[r,c] <- ('X', d, sc)
-            elif s = 'X' then ()
-            else
-                map.[r,c] <- ('X', d, sc)
-
-                let nbs =
-                    [(-1,0); (0,1); (1,0); (0,-1)]
-                    |> List.fold (fun acc (i,j) ->
-                        let (sT,dT,scT) = map.[r+i,c+j]
-                        if sT = '#' then acc
-                        else
-                            let scT =
-                                if List.contains d.Value [Up;Down] && List.contains dT.Value [Up;Down] && j <> 0 then scT+1000
-                                elif List.contains d.Value [Right;Left] && List.contains dT.Value [Right;Left] && i <> 0 then scT+1000
-                                else scT
-
-                            if scT < sc then (r+i,c+j)::acc else acc) []
-
-                nbs |> List.iter (fun p -> helper p map)
-                    
-                    
-                    //Array.map (fun (i,j) -> ((r+i,c+j), map.[r+i,c+j]))
-
-                //let groups = nbs |> Array.groupBy (fun (p, (_,_,sc)) -> sc) |> Map.ofArray
-
-                //let foo = Map.keys groups |> Seq.filter (fun n -> n < sc) |> Seq.toArray
-
-                //foo |> Array.iter (fun n -> groups.[n] |> Array.iter (fun (p,_) -> helper p map))
-        
-        helper Day16.EPos map
-
-        let foo = map |> Array2D.map (fun (s,_,_) -> s)
-        foo |> Day16.printMap
-
-        let rec counter ((r,c) : D16Pos) ((rL,cL) : D16Pos) (acc : int) (map : D16Map) =
-            if r >= rL then acc
-            elif c >= cL then counter (r+1, 0) (rL,cL) acc map
-            else
-                let (s, _, _) = map.[r,c]
-                counter (r, c+1) (rL,cL) (if s = 'X' then acc+1 else acc) map
-
-        counter (0,0) (Array2D.length1 map, Array2D.length2 map) 0 map |> string
+        snd res |> List.length |> string
 
     static member private printMap (map : char[,]) : unit =
         for i in [0..(Array2D.length1 map)-1] do
