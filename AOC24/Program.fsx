@@ -220,6 +220,32 @@ module Program =
                 input |> Day16.Star2 |> printfn "Day 16, Star 2: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
 
+            elif day = 17 then
+                let input = InputLoader.GetInputFromFile "inputs_test/day17_1.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_test/day17_2.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_real/day17.txt"
+
+                timer.Start()
+                input |> Day17.Star1 |> printfn "Day 17, Star 1: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+                
+                timer.Restart()
+                input |> Day17.Star2 |> printfn "Day 17, Star 2: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+
+            elif day = 18 then
+                let input = InputLoader.GetInputFromFile "inputs_test/day18_1.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_test/day18_2.txt"
+                let input = InputLoader.GetInputFromFile "inputs_real/day18.txt"
+
+                timer.Start()
+                input |> Day18.Star1 |> printfn "Day 18, Star 1: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+                
+                timer.Restart()
+                input |> Day18.Star2 |> printfn "Day 18, Star 2: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+
             else
                 printfn "Day not solved yet."
         
