@@ -236,7 +236,7 @@ module Program =
             elif day = 18 then
                 let input = InputLoader.GetInputFromFile "inputs_test/day18_1.txt"
                 //let input = InputLoader.GetInputFromFile "inputs_test/day18_2.txt"
-                let input = InputLoader.GetInputFromFile "inputs_real/day18.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_real/day18.txt"
 
                 timer.Start()
                 input |> Day18.Star1 |> printfn "Day 18, Star 1: %s"

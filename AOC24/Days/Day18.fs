@@ -92,18 +92,9 @@ type Day18() =
 
         graph <- graph.Add ((0,0), {MinDist = 0})
                 
-        let (_, o) = fails |> Array.fold (fun (i, (final : int option)) (r,c) ->
+        let (_, o) = fails.[1025..] |> Array.fold (fun (i, (final : int option)) (r,c) ->
             if final.IsSome then (i, final)
             else 
-                unvisited <- []
-                queue <- Map.ofList [(0, [(0,0)])]
-
-                map |> Array2D.iteri (fun i j _ ->
-                    graph <- graph.Add ((i,j), {MinDist = Int32.MaxValue})
-                    unvisited <- (i,j)::unvisited)
-
-                graph <- graph.Add ((0,0), {MinDist = 0})
-                    
                 map.[r,c] <- '#'
                 let res = Day18.path unvisited map queue graph
 
