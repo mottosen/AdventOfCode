@@ -30,26 +30,29 @@ type Day18() =
         if queue.IsEmpty then graph
         else
             let (dst, nodePos::rest) = queue |> Map.minKeyValue
-            let queue = if rest.IsEmpty then queue |> Map.remove dst else queue.Add (dst, rest)
 
-            if not (List.contains nodePos unvisited) then Day18.path unvisited map queue graph
+            if nodePos = Day18.EPos then graph
             else
-                let node = graph.[nodePos]
-                let unvisited = unvisited |> List.filter (fun p -> p <> nodePos)
+                let queue = if rest.IsEmpty then queue |> Map.remove dst else queue.Add (dst, rest)
 
-                let (queue,graph) =
-                    Day18.connections nodePos |> List.filter (fun (i,j) -> Day18.inBounds (i,j) && map.[i,j] <> '#')
-                    |> List.fold (fun (queue : Map<int, D18Pos list>, graph : Map<D18Pos, D18Node>) (i,j) ->
-                            let nbND = node.MinDist+1
-                            let queue = queue.Add (nbND, (i,j)::(if (queue.ContainsKey nbND) then queue.[nbND] else []))
-                            let graph =
-                                let nb = graph.[i,j]
-                                if nbND <= nb.MinDist then
-                                    graph.Add ((i,j), {MinDist = nbND})
-                                else graph
-                            (queue,graph)) (queue,graph)
+                if not (List.contains nodePos unvisited) then Day18.path unvisited map queue graph
+                else
+                    let node = graph.[nodePos]
+                    let unvisited = unvisited |> List.filter (fun p -> p <> nodePos)
 
-                Day18.path unvisited map queue graph
+                    let (queue,graph) =
+                        Day18.connections nodePos |> List.filter (fun (i,j) -> Day18.inBounds (i,j) && map.[i,j] <> '#')
+                        |> List.fold (fun (queue : Map<int, D18Pos list>, graph : Map<D18Pos, D18Node>) (i,j) ->
+                                let nbND = node.MinDist+1
+                                let queue = queue.Add (nbND, (i,j)::(if (queue.ContainsKey nbND) then queue.[nbND] else []))
+                                let graph =
+                                    let nb = graph.[i,j]
+                                    if nbND <= nb.MinDist then
+                                        graph.Add ((i,j), {MinDist = nbND})
+                                    else graph
+                                (queue,graph)) (queue,graph)
+
+                    Day18.path unvisited map queue graph
 
     static member inBounds ((r,c) : D18Pos) : bool =
         let (rL,cL) = Day18.Bounds
@@ -91,14 +94,14 @@ type Day18() =
             '.')
 
         graph <- graph.Add ((0,0), {MinDist = 0})
-                
-        let (_, o) = fails.[1025..] |> Array.fold (fun (i, (final : int option)) (r,c) ->
-            if final.IsSome then (i, final)
-            else 
-                map.[r,c] <- '#'
-                let res = Day18.path unvisited map queue graph
 
-                if res.[Day18.EPos].MinDist = Int32.MaxValue then (i, Some i) else (i+1, final)) (0, None)
+        let mutable (l,r) = (0,fails.Length-1)
+        while l <> r do
+            let m = l + (r-l)/2
+            let grid = Array2D.copy map
+            fails.[..m] |> Array.iter (fun (r,c) -> grid.[r,c] <- '#')
+            let res = Day18.path unvisited grid queue graph
+            if res.[Day18.EPos].MinDist = Int32.MaxValue then r <- m else l <- m+1
 
-        printfn "%A" o
-        if o.IsNone then "no problem" else fails.[o.Value] |> string
+        printfn "%A" l
+        fails.[l] |> string
