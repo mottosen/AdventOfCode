@@ -5,18 +5,12 @@ open System
 
 type D16Pos = int*int
 type D16Dir = Up | Right | Down | Left
-type D16Map = (char*(D16Pos list)*int)[,]
 
-type D16Node = {Weight:int; Dir:D16Dir option; Trail : D16Pos list; Trailed : bool; Blocked : bool}
+type D16Node = {MinDist : int; Dir : D16Dir option; Paths : D16Pos list list}
 
 type Day16() =
     static let mutable _sPos = (0,0)
     static let mutable _ePos = (0,0)
-
-    static let mutable _graph = Map.empty<D16Pos,D16Node>
-    static member Graph
-        with get() = _graph
-        and set(g) = _graph <- g
 
     static member private SPos
         with get() = _sPos
@@ -25,167 +19,96 @@ type Day16() =
     static member private EPos
         with get() = _ePos
         and set(p) = _ePos <- p
-
-    static member private connections ((r,c) : D16Pos) : D16Dir -> D16Pos[] = function
-        | Up ->    [|(r,c-1); (r-1,c); (r,c+1)|]
-        | Right -> [|(r-1,c); (r,c+1); (r+1,c)|]
-        | Down ->  [|(r,c+1); (r+1,c); (r,c-1)|]
-        | Left ->  [|(r+1,c); (r,c-1); (r-1,c)|]
-
-    static member private changeDir (c : int) : D16Dir -> D16Dir = function
-        | Up -> if c = 0 then Left elif c = 1 then Up elif c = 2 then Right else failwith "should not happen"
-        | Right -> if c = 0 then Up elif c = 1 then Right elif c = 2 then Down else failwith "should not happen"
-        | Down -> if c = 0 then Right elif c = 1 then Down elif c = 2 then Left else failwith "should not happen"
-        | Left -> if c = 0 then Down elif c = 1 then Left elif c = 2 then Up else failwith "should not happen"
-
+    
     static member private nextPos ((r,c) : D16Pos) : D16Dir -> D16Pos = function
         | Up -> (r-1,c) | Right -> (r,c+1) | Down -> (r+1,c) | Left -> (r,c-1)
+    
+    static member private connections ((r,c) : D16Pos) (blocked : bool) (dir : D16Dir) : (D16Pos*D16Dir*int)[] =
+        let dst = if blocked then 1 else 1001
+        match dir with
+        | Up ->    [|((r,c-1), Left,  dst); ((r-1,c), Up,    1); ((r,c+1), Right, dst)|]
+        | Right -> [|((r-1,c), Up,    dst); ((r,c+1), Right, 1); ((r+1,c), Down,  dst)|]
+        | Down ->  [|((r,c+1), Right, dst); ((r+1,c), Down,  1); ((r,c-1), Left,  dst)|]
+        | Left ->  [|((r+1,c), Down,  dst); ((r,c-1), Left,  1); ((r-1,c), Up,    dst)|]
 
-    static member path (map : char[,]) (graph : Map<D16Pos,D16Node>) : int*(D16Pos list) =
-        let mutable minWeight = Int32.MaxValue
-        graph |> Map.iter (fun k v -> let w = v.Weight in if w < minWeight && not v.Trailed then minWeight <- w)
-
-        let (r,c) = graph |> Map.findKey (fun k v -> v.Weight = minWeight && not v.Trailed)
-
-        if (r,c) = Day16.EPos then
-            Day16.Graph <- graph
-            let tmp = graph.[r,c]
-            (tmp.Weight, (r,c)::tmp.Trail)
+    // unvisited : unvisited nodes
+    // queue : nodes to be handled, indexed by distance
+    // graph : nodes
+    // map : input map
+    static member private path (unvisited : D16Pos list) (map : char[,]) (queue : Map<int, D16Pos list>) (graph : Map<D16Pos, D16Node>) : Map<D16Pos, D16Node> =
+        if queue.IsEmpty then graph // no more to handle
         else
-            let node = graph.[r,c]
-            let node = {Weight = node.Weight; Dir = node.Dir; Trail = node.Trail; Trailed = true; Blocked = node.Blocked}
-            let graph = graph.Add ((r,c), node)
+            let (dst, nodePos::rest) = queue |> Map.minKeyValue
+            let (x,y) = nodePos
+            let queue = if rest.IsEmpty then queue |> Map.remove dst else queue.Add (dst, rest)
 
-            let nodeDir = node.Dir.Value
-            let nodeWeight = node.Weight
-            let nbs = Day16.connections (r,c) nodeDir |> Array.map (fun (i,j) -> if map.[i,j] = '#' then None else Some (i,j))
-            if nbs |> Array.forall (fun o -> o.IsNone) then
-                let o = graph.[r,c]
-                Day16.path map (graph.Add ((r,c), {Weight = o.Weight; Dir = o.Dir; Trail = o.Trail; Trailed = true; Blocked = o.Blocked}))
-            else
-                let foo = nbs |> Array.mapi (fun dD po ->
-                    if po.IsSome then
-                        let (i,j) = po.Value
-                        let n = graph.[i,j]
+            if not (List.contains nodePos unvisited) then Day16.path unvisited map queue graph
+            else // position is unvisited
+                let node = graph.[nodePos]
+                let unvisited = unvisited |> List.filter (fun p -> p <> nodePos)
 
-                        let nDir = Day16.changeDir dD nodeDir
+                let blocked = let (i,j) = Day16.nextPos nodePos node.Dir.Value in map.[i,j] = '#'
 
-                        let (x,y) = Day16.nextPos (i,j) nDir
-                        let blocked = map.[x,y] = '#' && not ((i,j) = Day16.EPos)
+                let (queue,graph) =
+                    Day16.connections nodePos blocked node.Dir.Value
+                    |> Array.map (fun (nbPos, nbDir, nbD) ->
+                        let (r,c) = nbPos
+                        if map.[r,c] = '#' then None
+                        else
+                            let nbD = let (i,j) = Day16.nextPos nbPos nbDir in if (r,c) <> Day16.EPos && map.[i,j] = '#' then nbD+1000 else nbD
+                            (nbPos, nbDir, node.MinDist+nbD) |> Some)
+                    |> Array.fold (fun (queue : Map<int, D16Pos list>, graph : Map<D16Pos, D16Node>) (o : (D16Pos*D16Dir*int) option) ->
+                        if o.IsNone then (queue,graph)
+                        else
+                            let (nbPos,nbDir,nbND) = o.Value
+                            let queue = queue.Add (nbND, nbPos::(if (queue.ContainsKey nbND) then queue.[nbND] else []))
+                            let graph =
+                                let nb = graph.[nbPos]
+                                if nbND <= nb.MinDist then
+                                    let updatedPaths = nb.Paths @ (node.Paths |> List.map (fun path -> nbPos::path))
+                                    graph.Add (nbPos, {MinDist = nbND; Dir = Some nbDir; Paths = updatedPaths})
+                                else graph
 
-                        let nodeWeight =
-                            if blocked then nodeWeight+1000
-                            else nodeWeight
-
-                        let newWeight =
-                            if node.Blocked || blocked || dD = 1 then nodeWeight+1
-                            else nodeWeight+1001
-                        if newWeight <= n.Weight then
-                            [((i,j), {Weight = newWeight; Dir = Some nDir; Trail = ((r,c)::node.Trail @ n.Trail) |> List.distinct; Trailed = false; Blocked = blocked})]
-                        else []
-                    else [])
-
-                foo
-                |> Array.fold (fun (g : Map<D16Pos,D16Node>) f ->
-                    f |> List.fold (fun acc pair -> acc.Add pair) g) graph
-                |> Day16.path map
+                            (queue,graph)) (queue,graph)
+                
+                Day16.path unvisited map queue graph
 
     static member Star1 (input : string[]) : string =
         let parsed = input |> array2D
         let mutable graph = Map.empty<D16Pos,D16Node>
+        let mutable unvisited : D16Pos list = []
+        let mutable queue = Map.empty<int,D16Pos list>
 
         parsed |> Array2D.iteri (fun r c s ->
-            if s = 'S' then
+            if s = 'E' then
                 Day16.SPos <- (r,c)
-                let (i,j) = Day16.nextPos (r,c) Right
-                let blocked = parsed.[i,j] = '#'
-                graph <- graph.Add ((r,c), {Weight = (if blocked then 1000 else 0); Dir = Some Right; Trail = []; Trailed = false; Blocked = blocked})
-            elif s = 'E' then
+                let (i,j) = Day16.nextPos (r,c) Left
+                let dist = if parsed.[i,j] = '#' then 1000 else 0
+                graph <- graph.Add ((r,c), {MinDist = dist; Dir = Some Left; Paths = [[(r,c)]]})
+                queue <- queue.Add (dist, [(r,c)])
+                unvisited <- (r,c)::unvisited
+            elif s = 'S' then
                 Day16.EPos <- (r,c)
-                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false; Blocked = false})
+                graph <- graph.Add ((r,c), {MinDist = Int32.MaxValue; Dir = None; Paths = []})
+                unvisited <- (r,c)::unvisited
             elif s = '.' then
-                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false; Blocked = false}))
+                graph <- graph.Add ((r,c), {MinDist = Int32.MaxValue; Dir = None; Paths = []})
+                unvisited <- (r,c)::unvisited)
 
-        Day16.path parsed graph
-        |> fst |> string
+        let graph = Day16.path unvisited parsed queue graph
 
-    static member Star2 (input : string[]) : string = // 432 too low
-        let parsed = input |> array2D
-        let mutable graph = Map.empty<D16Pos,D16Node>
-
-        parsed |> Array2D.iteri (fun r c s ->
-            if s = 'S' then
-                Day16.SPos <- (r,c)
-                let (i,j) = Day16.nextPos (r,c) Right
-                graph <- graph.Add ((r,c), {Weight = 0; Dir = Some Right; Trail = []; Trailed = false; Blocked = parsed.[i,j] = '#'})
-            elif s = 'E' then
-                Day16.EPos <- (r,c)
-                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false; Blocked = false})
-            elif s = '.' then
-                graph <- graph.Add ((r,c), {Weight = Int32.MaxValue; Dir = None; Trail = []; Trailed = false; Blocked = false}))
-
-        let res = Day16.path parsed graph
-
-        //for (i,j) in (snd res) do
-        //    parsed.[i,j] <- 'X'
-        //parsed |> Day16.printMap
-        //parsed |> Day16.mapGraph Day16.Graph
-
-        // off by 10 because of edge case with eg. >^> being charged for double rotation, wrongly
-        let rec backtracker (s : char) (sc : int) ((r,c) : D16Pos) (map : char[,]) : D16Pos list =
-            if (r,c) = Day16.SPos then [(r,c)]
-            elif map.[r,c] = '#' then []
-            else
-                let runs =
-                    if s = '^' then
-                        if [map.[r,c-1]; map.[r,c+1]] |> List.forall (fun s' -> s' = '>') then [Some (r,c-1)]
-                        elif [map.[r,c-1]; map.[r,c+1]] |> List.forall (fun s' -> s' = '<') then [Some (r,c+1)]
-                        else
-                            [
-                                let (i,j) = (r,c-1) in if map.[i,j] = '>' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                                let (i,j) = (r+1,c) in if map.[i,j] <> '#' && Day16.Graph.[i,j].Weight < sc then Some (i,j) else None
-                                let (i,j) = (r,c+1) in if map.[i,j] = '<' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                            ]
-                    elif s = '>' then
-                        if [map.[r-1,c]; map.[r+1,c]] |> List.forall (fun s' -> s' = 'v') then [Some (r-1,c)]
-                        elif [map.[r-1,c]; map.[r+1,c]] |> List.forall (fun s' -> s' = '^') then [Some (r+1,c)]
-                        else
-                            [
-                                let (i,j) = (r-1,c) in if map.[i,j] = 'v' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                                let (i,j) = (r,c-1) in if map.[i,j] <> '#' && Day16.Graph.[i,j].Weight < sc then Some (i,j) else None
-                                let (i,j) = (r+1,c) in if map.[i,j] = '^' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                            ]
-
-                    elif s = 'v' then
-                        if [map.[r,c-1]; map.[r,c+1]] |> List.forall (fun s' -> s' = '>') then [Some (r,c-1)]
-                        elif [map.[r,c-1]; map.[r,c+1]] |> List.forall (fun s' -> s' = '<') then [Some (r,c+1)]
-                        else
-                            [
-                                let (i,j) = (r,c+1) in if map.[i,j] = '<' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                                let (i,j) = (r-1,c) in if map.[i,j] <> '#' && Day16.Graph.[i,j].Weight < sc then Some (i,j) else None
-                                let (i,j) = (r,c-1) in if map.[i,j] = '>' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                            ]
-                    else // '<'
-                        if [map.[r-1,c]; map.[r+1,c]] |> List.forall (fun s' -> s' = 'v') then [Some (r-1,c)]
-                        elif [map.[r-1,c]; map.[r+1,c]] |> List.forall (fun s' -> s' = '^') then [Some (r+1,c)]
-                        else
-                            [
-                                let (i,j) = (r-1,c) in if map.[i,j] = 'v' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                                let (i,j) = (r,c+1) in if map.[i,j] <> '#' && Day16.Graph.[i,j].Weight < sc then Some (i,j) else None
-                                let (i,j) = (r+1,c) in if map.[i,j] = '^' && Day16.Graph.[i,j].Weight < sc - 1000 then Some (i,j) else None
-                            ]
-
-                (r,c) :: (runs |> List.filter (fun o -> o.IsSome)
-                |> List.map (fun o -> let (i,j) = o.Value in backtracker map.[i,j] Day16.Graph.[i,j].Weight (i,j) map)
-                |> List.concat) |> List.distinct
-
-        let (i,j) = Day16.EPos
-        let bam = backtracker parsed.[i,j] (res |> fst) (i,j) parsed
-        printfn "%A" bam
-        bam |> List.length |> printfn "%A"
-
+        if false then
+            Day16.mapGraph graph parsed
+        else
+            for (i,j) in (graph.[Day16.EPos].Paths |> List.concat |> List.distinct) do
+                parsed.[i,j] <- 'X'
+            parsed |> Day16.printMap
         
-        snd res |> List.length |> string
+        graph.[Day16.EPos].Paths |> List.concat |> List.distinct |> List.length |> printfn "%A"
+        graph.[Day16.EPos].MinDist |> string
+
+    static member Star2 (input : string[]) : string = // 442
+        ""
 
     static member private mapGraph (graph : Map<D16Pos,D16Node>) (map : char[,]) : unit =
         let helper : D16Dir -> char = function
