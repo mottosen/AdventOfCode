@@ -235,7 +235,7 @@ module Program =
 
             elif day = 18 then
                 let input = InputLoader.GetInputFromFile "inputs_test/day18_1.txt"
-                //let input = InputLoader.GetInputFromFile "inputs_test/day18_2.txt"
+                ////let input = InputLoader.GetInputFromFile "inputs_test/day18_2.txt"
                 //let input = InputLoader.GetInputFromFile "inputs_real/day18.txt"
 
                 timer.Start()
@@ -244,6 +244,19 @@ module Program =
                 
                 timer.Restart()
                 input |> Day18.Star2 |> printfn "Day 18, Star 2: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+
+            elif day = 19 then
+                let input = InputLoader.GetInputFromFile "inputs_test/day19_1.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_test/day19_2.txt"
+                //let input = InputLoader.GetInputFromFile "inputs_real/day19.txt"
+
+                timer.Start()
+                input |> Day19.Star1 |> printfn "Day 19, Star 1: %s"
+                printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
+                
+                timer.Restart()
+                input |> Day19.Star2 |> printfn "Day 19, Star 2: %s"
                 printfn "\ttime: %i ms" (timer.ElapsedMilliseconds)
 
             else
