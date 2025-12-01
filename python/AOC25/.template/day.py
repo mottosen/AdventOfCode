@@ -3,8 +3,8 @@ import sys
 import time
 from pathlib import Path
 
-from Part1.solution import Part1
-from Part2.solution import Part2
+from Parts.Part1 import Part1
+from Parts.Part2 import Part2
 
 
 def main():

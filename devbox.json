@@ -22,7 +22,7 @@
             ],
             "new_day": [
                 "cd $AOC_YEAR",
-                "python new_day.py"
+                "python new_day.py",
             ],
         }
     }
