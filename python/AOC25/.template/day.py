@@ -19,21 +19,21 @@ def main():
 
         # -------- Part1 --------
         print("\nComputing result for Part 1...\n")
-        part1: Part1 = Part1(input_file)
+        part1 = Part1(input_file)
 
-        time_start: float = time.perf_counter()
-        solution1: str = part1.get_day_solution()
-        time_stop: float = time.perf_counter()
+        time_start = time.perf_counter()
+        solution1 = part1.get_day_solution()
+        time_stop = time.perf_counter()
 
         print(f"Answer: {solution1}\nFound in: {time_stop - time_start:0.4f} seconds\n")
 
         # -------- Part2 --------
         print("\nComputing result for Part 2...\n")
-        part2: Part2 = Part2(input_file)
+        part2 = Part2(input_file)
 
-        time_start: float = time.perf_counter()
-        solution1: str = part2.get_day_solution()
-        time_stop: float = time.perf_counter()
+        time_start = time.perf_counter()
+        solution1 = part2.get_day_solution()
+        time_stop = time.perf_counter()
 
         print(f"Answer: {solution1}\nFound in: {time_stop - time_start:0.4f} seconds\n")
 
