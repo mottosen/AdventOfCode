@@ -1,29 +1,23 @@
 {
-    "packages": [
-        "python@latest",
-    ],
-    "env": {
-        "PIP_REQUIRE_VIRTUALENV": "true",
-        "VENV_DIR": "./.venv",
-        "PIP_REQUIRE_FILE": "./python/AOC25/requirements.txt",
+  "packages": ["python@latest"],
+  "env": {
+    "AOC_YEAR": "./python/AOC25",
+    "PIP_REQUIRE_FILE": "./python/AOC25/requirements.txt",
 
-        "ROOT_DIR": "$PWD",
-        "AOC_YEAR": "./python/AOC25",
-    },
-    "shell": {
-        "init_hook": [
-            "if [ ! -d \"$VENV_DIR\" ]; then py -m venv \"$VENV_DIR\"; fi",
-            ". $VENV_DIR/bin/activate",
-        ],
-        "scripts": {
-            "update_pip": [
-                "pip install --upgrade pip",
-                "pip install -r $PIP_REQUIRE_FILE",
-            ],
-            "new_day": [
-                "cd $AOC_YEAR",
-                "python new_day.py",
-            ],
-        }
+    "PIP_REQUIRE_VIRTUALENV": "true",
+    "VENV_DIR": "./.venv"
+  },
+  "shell": {
+    "init_hook": [
+      "if [ ! -d \"$VENV_DIR\" ]; then py -m venv \"$VENV_DIR\"; fi",
+      ". $VENV_DIR/bin/activate"
+    ],
+    "scripts": {
+      "update_pip": [
+        "pip install --upgrade pip",
+        "pip install -r $PIP_REQUIRE_FILE"
+      ],
+      "new_day": ["cd $AOC_YEAR", "python new_day.py"]
     }
+  }
 }
