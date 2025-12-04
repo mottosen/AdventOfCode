@@ -15,7 +15,9 @@ class Part2:
         total_processed = 0
 
         while True:
-            accessible = hs.handle_grid(self.input_data, self.x_max, self.y_max)
+            accessible = hs.handle_grid(
+                self.input_data, self.x_max, self.y_max, remove=True
+            )
             amount = len(accessible)
 
             if amount == 0:
@@ -24,7 +26,5 @@ class Part2:
             else:
                 # process the accessible paper rolls
                 total_processed += amount
-                for coord in accessible:
-                    self.input_data[coord[0]][coord[1]] = "x"
 
         return str(total_processed)

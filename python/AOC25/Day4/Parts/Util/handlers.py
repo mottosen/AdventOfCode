@@ -1,4 +1,4 @@
-def handle_grid(grid, x_max, y_max):
+def handle_grid(grid, x_max, y_max, remove=False):
     # the coordinates accessible by forklift
     forklift_accees = []
 
@@ -33,6 +33,8 @@ def handle_grid(grid, x_max, y_max):
             paper_rolls = list(filter(lambda neighbor: neighbor == "@", neighbors))
             if len(paper_rolls) < 4:
                 forklift_accees.insert(0, (y, x))
+                if remove:
+                    cur_row[x] = "x"
 
         last_row = cur_row
         cur_row = next_row
