@@ -10,18 +10,19 @@ def line_2_vertice(line):
 
 
 def edge_len(v1, v2):
-    return sqrt((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2)
+    return (v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 + (v1[2] - v2[2]) ** 2
 
 
 def build_graph(input):
-    vertices = [line_2_vertice(line) for line in input]
-    edges = []
+    vertices, edges = [], []
 
-    for i, v1 in enumerate(vertices):
-        for v2 in vertices[i + 1 :]:
-            edges.insert(0, (edge_len(v1["pos"], v2["pos"]), (v1, v2)))
+    for line in input:
+        v1 = line_2_vertice(line)
+        for v2 in vertices:
+            edges.insert(0, (v1, v2))
+        vertices.insert(0, v1)
 
-    edges.sort(key=lambda edge: edge[0])
+    edges.sort(key=lambda edge: edge_len(edge[0]["pos"], edge[1]["pos"]))
 
     return vertices, edges
 

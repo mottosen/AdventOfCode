@@ -16,8 +16,7 @@ class Part1:
         # we build the circuits
         circuits = {}
         counter = 1
-        for edge in edges[: self.junction_limit]:
-            v1, v2 = edge[1]
+        for v1, v2 in edges[: self.junction_limit]:
             counter = handle_edge(circuits, counter, v1, v2)
 
         circuits = [len(circuit) for circuit in circuits.values()]

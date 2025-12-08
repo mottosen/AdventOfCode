@@ -18,7 +18,7 @@ class Part2:
         # we build the circuits, until there's only one
         circuits = {}
         counter = 1
-        for edge in edges:
+        for v1, v2 in edges:
             if counter > 1 and len(circuits) == 1:
                 boxes = list(circuits.values())[0]
                 if len(boxes) == len(vertices):
@@ -26,7 +26,6 @@ class Part2:
                     distance = v1["pos"][0] * v2["pos"][0]
                     break
 
-            v1, v2 = edge[1]
             counter = handle_edge(circuits, counter, v1, v2)
 
             last_edge = v1, v2
