@@ -6,7 +6,7 @@ dir_template = dir_aoc / ".template"
 days = 12
 
 for day in range(1, days + 1):
-    dir_day = dir_aoc / f"Day{day}"
+    dir_day = dir_aoc / f"Day{day:02d}"
 
     if not dir_day.exists():
         print(f"Setting up Day {day}!")
